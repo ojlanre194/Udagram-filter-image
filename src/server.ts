@@ -1,5 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import {Router, Request, Response} from express;
 import {filterImageFromURL, deleteLocalFiles} from './util/util';
 
 (async () => {
@@ -33,7 +34,22 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   
   // Root Endpoint
   // Displays a simple message to the user
-  app.get("/filteredimage?image_url={{URL}}",async(req,res)=>{
+
+app.get('/filteredimage', async(req: Request, res:Resonse)=>{
+  const image_url= req.query.image_url.tostring();
+  if(!image_url){
+    res.status(400).send("image url is needed")
+  }
+  const filtered_image = await filteredImageFromURL(image_url);
+
+  res.status(200).sendFile(filtered_image, () =>{
+    deleteLocalFiles([filtered_image]);
+  });
+
+
+});
+
+  /*app.get("/filteredimage?image_url={{URL}}",async(req,res)=>{
     console.log("in");
     let {image_url} = req.params.image_url;
     //url validation
@@ -53,7 +69,7 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
 
       }
       
-    }
+    }*/
   
   })
   app.get( "/", async ( req, res ) => {
@@ -62,7 +78,7 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   
 
   // Start the Server
-  app.listen( port, () => {
+  app.listen( port, (8082) => {
       console.log( `server running http://localhost:${ port }` );
       console.log( `press CTRL+C to stop server` );
   } );
